@@ -17,7 +17,11 @@ import javax.swing.JPanel;
  */
 public class GamePlay extends JPanel implements MouseListener{
     
-    static Board.Pieces onClicked;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	static Board.Pieces onClicked;
     int coordinates[];
     Board board;
     public GamePlay(){
@@ -102,7 +106,6 @@ static ArrayList<String> moves;
             int indexX=(e.getX()-45)/100;
             int indexY=7-(e.getY()-45)/100;
             
-            ArrayList<String> availableMoves;
           
              if (onClicked!=null) {//if there is a picked piece
                 

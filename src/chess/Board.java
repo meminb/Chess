@@ -1,5 +1,5 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
+* To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
@@ -17,7 +17,9 @@ import javax.imageio.stream.FileImageInputStream;
  * @author muham
  */
 public class Board {
-    static Pieces[] testPieces; 
+    static Pieces[] testPieces;
+    public Pieces lastMoved;//last moved piece
+    public String lastMove;//last moved place
     
     
     Hashtable<Integer, Pieces> kings;
@@ -46,7 +48,8 @@ public class Board {
         isCheck=false;
         turn=1;
        diMap=new Pieces[8][8];
-       
+       lastMove=null;
+       lastMoved=null;
        
         try {
             board=ImageIO.read(new FileImageInputStream(new File("Board.jpg")));
@@ -262,7 +265,7 @@ class Pieces {
    return moves;
    }
    
-   public  ArrayList<String> AvailableMoves(){
+   public  ArrayList<String> AvailableMoves(){//if a move cause of check,that s gonna be removed
      ArrayList<String> moves=checkMovesFor();
        
      
@@ -282,15 +285,16 @@ class Pieces {
     public boolean moveOrCapture(int targetX,int targetY) {//moving an object
      
         
-        
       if (diMap[targetY][targetX]==null||this.team*diMap[targetY][targetX].team==-1) {//if target possition is empty or there is an enemy piece
-        int tempx=X;
+        lastMove=getNotation(X,Y);
+    	int tempx=X;
         int tempy=Y;
         setHasMoved(true);
         diMap[targetY][targetX]=this;//new placement for moved object
         diMap[tempy][tempx]=null;//delete the moved object
         diMap[targetY][targetX].X=targetX;
         diMap[targetY][targetX].Y=targetY;
+        lastMoved=this;
         turn*=-1;//change turn
         isCheck=check((turn));
         return true;
@@ -403,47 +407,103 @@ class Pieces {
 class Pawn extends Pieces{
     
     ArrayList<String> availableMoves=new ArrayList<>();
+    boolean  enPassantMove;
+   
     
     public Pawn(int side,int x,int  y) {
         super(side,x,y);
         setImg((side==1)?PawnWhite:PawnBlack);
+        enPassantMove=false;
         
     }
     
+ 
     
-    public String enPassant(){//not yet
-        return null;
+    @Override
+    public boolean moveOrCapture(int targetX, int targetY) {
+    	
+    		if (enPassantMove&&lastMoved.Y-targetY==-team) {
+				diMap[lastMoved.Y][lastMoved.X]=null;
+			}
+    	
+    	boolean b=super.moveOrCapture(targetX, targetY);
+    	
+    	if ((team==-1&&targetY==0)||(team==1&&targetY==7)) {
+			diMap[targetY][targetX]=new Queen(team, targetX, targetY);
+		}
+    	isCheck=check((turn));
+    	return b;
     }
+    
             
     
     @Override
-    public ArrayList<String> checkMovesFor(){
+    public ArrayList<String> checkMovesFor() {
         ArrayList<String> moves=new ArrayList<>();
-        
       try {
-        if(diMap[this.Y+this.getTeam()][this.X]==null){
+        if(diMap[this.Y+this.getTeam()][this.X]==null){//if front square is null
             moves.add(getNotation(this.X, this.Y+this.getTeam()));
-            if(isHasMoved()==false&&diMap[this.Y+this.getTeam()*2][this.X]==null  ){//if the piece havent move yet,can play 2 square
+            if(isHasMoved()==false&&diMap[this.Y+this.getTeam()*2][this.X]==null  ){//if the piece haven't moved yet,can play 2 square
             moves.add(getNotation(this.X, this.Y+this.getTeam()*2));
             }
        
         }
-           if (diMap[this.Y+this.getTeam()][this.X+this.getTeam()].team*this.getTeam()==-1) {//capturing situations
-                moves.add(getNotation(this.X+this.getTeam(), this.Y+this.getTeam()));
-            }
          
         } catch (NullPointerException e) {
         }catch (ArrayIndexOutOfBoundsException e) {
         }
-        
+      
+      
+      
+      try {
+         if (diMap[this.Y+this.getTeam()][this.X+this.getTeam()].team*this.getTeam()==-1) {//capturing situations
+                moves.add(getNotation(this.X+this.getTeam(), this.Y+this.getTeam()));
+            }
+       
+      } catch (NullPointerException e) {
+      }catch (ArrayIndexOutOfBoundsException e) {
+      }
+      
         try {
-            if (diMap[this.Y+this.getTeam()][this.X-this.getTeam()].team*this.getTeam()==-1) {
+            if (diMap[this.Y+this.getTeam()][this.X-this.getTeam()].team*this.getTeam()==-1) {//capturing situations  2
                  moves.add(getNotation(this.X-this.getTeam(), this.Y+this.getTeam()));
             }
          
         } catch (NullPointerException e) {
         }catch (ArrayIndexOutOfBoundsException e) {
         }
+        
+        
+        try {//enPassant
+        	int[] i=getCoords(lastMove);
+        	if ((diMap[Y][X+1].equals(lastMoved))
+						&&Math.abs(lastMoved.Y-i[1])==2) {//if last moved piece is a pawn and placed 2 square
+						moves.add(getNotation(lastMoved.X, lastMoved.Y-lastMoved.team));
+						enPassantMove=true;
+						System.out.println("girdi");
+				}else {
+					enPassantMove=false;
+				}
+			
+        	
+		} catch (Exception e) {
+		}
+        try {//enPassant
+        	int[] i=getCoords(lastMove);
+        	if ((diMap[Y][X-1].equals(lastMoved))
+						&&Math.abs(lastMoved.Y-i[1])==2) {//if last moved piece is a pawn and placed 2 square
+						moves.add(getNotation(lastMoved.X, lastMoved.Y-lastMoved.team));
+						enPassantMove=true;
+						System.out.println("girdi");
+				}else {
+					enPassantMove=false;
+				}
+			
+        	
+		} catch (Exception e) {
+		}
+        
+        
         return moves;
     }
 }
@@ -652,13 +712,6 @@ class KING extends Pieces{
 }
 
 
-/**
-
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone(); //To change body of generated methods, choose Tools | Templates.
-    }
-**/
   
 
 

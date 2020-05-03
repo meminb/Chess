@@ -14,7 +14,13 @@ import javax.swing.JFrame;
  */
 public class Chess extends JFrame{
 
-     public Chess (String title) throws HeadlessException{
+     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+
+	public Chess (String title) throws HeadlessException{
         super(title);
        }
     
