@@ -62,7 +62,7 @@ public class GamePlay extends JPanel implements MouseListener{
 
 
         if (board.isCheck) {
-            g.drawImage(board.Checked, coordinates[board.kings.get(board.turn).X], coordinates[7-board.kings.get(board.turn).Y], 100, 100, this);
+            g.drawImage(ImageOfPieces.imagesInstance.getChecked(), coordinates[board.kings.get(board.turn).X], coordinates[7-board.kings.get(board.turn).Y], 100, 100, this);
         }
 
         for (int i = 7; i >=0; i--) {//drawing all Pieces-> down to top
