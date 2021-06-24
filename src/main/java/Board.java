@@ -24,7 +24,10 @@ public class Board implements Cloneable{
     int turn;//white's turn -> 1
     BufferedImage Checked;
 
-    // TODO: 16.06.2021 valculate value of board
+    private int valueOfBoard;
+
+
+    // TODO: 16.06.2021 calculate value of board
 
 
 
@@ -79,8 +82,27 @@ public class Board implements Cloneable{
 
     }
 
+    public void calculateValueOfBoard(){
+        // TODO dolas puan topla
+        int totalValue = 0;
+        for (int i=0; i<8; i++){
+            for (int j = 0 ; j < 8; j++){
+                Pieces piece = stateOfBoard[i][j];
+                if(piece == null){
+                    continue;
+                }
+                totalValue += piece.getValue() * piece.team;
+            }
+        }
+        System.out.println("The total value of board is: " + totalValue);
+    }
+
     public BufferedImage getBoard() {
         return ImageOfPieces.imagesInstance.getBoard();
+    }
+
+    public int getValueOfBoard() {
+        return valueOfBoard;
     }
 
     public String getNotation(int x, int y) {
@@ -150,7 +172,6 @@ public class Board implements Cloneable{
     class Pieces {
 
         private boolean hasMoved;
-        final int value=0;
         public int team;
         private BufferedImage img;
         public int X;
@@ -163,7 +184,9 @@ public class Board implements Cloneable{
             this.Y = y;
             this.team = side;
         }
-
+        public int getValue(){
+            return 0;
+        }
         public int getTeam() {
             return team;
         }
@@ -241,6 +264,7 @@ public class Board implements Cloneable{
                 lastMoved = this;
                 turn *= -1;//change turn
                 isCheck = check((turn));
+                calculateValueOfBoard();
                 return true;
             }
 
@@ -349,14 +373,17 @@ public class Board implements Cloneable{
 
         ArrayList<String> availableMoves = new ArrayList<>();
         boolean enPassantMove;
-        final int value=1;
+
         public Pawn(int side, int x, int y) {
             super(side, x, y);
             setImg((side == 1) ? ImageOfPieces.imagesInstance.getPawnWhite() : ImageOfPieces.imagesInstance.getPawnBlack());
             enPassantMove = false;
 
         }
-
+        @Override
+        public int getValue(){
+            return 1;
+        }
         @Override
         public boolean moveOrCapture(int targetX, int targetY) {
 
@@ -438,13 +465,17 @@ public class Board implements Cloneable{
     class Knight extends Pieces {
 
         int[][] steps;
-        final int value= 3 ;
+
         public Knight(int side, int x, int y) {
             super(side, x, y);
             setImg((side == 1) ? ImageOfPieces.imagesInstance.getKnightWhite() : ImageOfPieces.imagesInstance.getKnightBlack());
             steps = new int[][]{{1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}, {2, -1}, {2, 1}};
         }
 
+        @Override
+        public int getValue(){
+            return 3;
+        }
         @Override
         public ArrayList<String> checkMovesFor() {
             ArrayList<String> moves = new ArrayList<>();
@@ -465,12 +496,15 @@ public class Board implements Cloneable{
     }
 
     class Bishop extends Pieces {
-        final int value= 3 ;
+
         public Bishop(int side, int x, int y) {
             super(side, x, y);
             setImg((side == 1) ? ImageOfPieces.imagesInstance.getBishopWhite() : ImageOfPieces.imagesInstance.getBishopBlack());
         }
-
+        @Override
+        public int getValue(){
+            return 3;
+        }
         @Override
         public ArrayList<String> checkMovesFor() {
 
@@ -480,12 +514,15 @@ public class Board implements Cloneable{
     }
 
     class Rook extends Pieces {
-        final int value= 5 ;
+
         public Rook(int side, int x, int y) {
             super(side, x, y);
             setImg((side == 1) ? ImageOfPieces.imagesInstance.getRookWhite() : ImageOfPieces.imagesInstance.getRookBlack());
         }
-
+        @Override
+        public int getValue(){
+            return 5;
+        }
         @Override
         public ArrayList<String> checkMovesFor() {
             return MoveofGambits();
@@ -494,12 +531,15 @@ public class Board implements Cloneable{
     }
 
     class Queen extends Pieces {
-        final int value= 9 ;
+
         public Queen(int side, int x, int y) {
             super(side, x, y);
             setImg((side == 1) ? ImageOfPieces.imagesInstance.getQueenWhite() : ImageOfPieces.imagesInstance.getQueenBlack());
         }
-
+        @Override
+        public int getValue(){
+            return 9;
+        }
         @Override
         public ArrayList<String> checkMovesFor() {
             ArrayList<String> moves = MoveofGambits();
