@@ -6,6 +6,7 @@
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JPanel;
@@ -24,17 +25,19 @@ public class GamePlay extends JPanel implements MouseListener{
     int coordinates[];
     Board board;
     boolean isAIon;
+
+    ArtificialIntelligence artificialDecisions;
     public GamePlay(boolean isAIon) throws CloneNotSupportedException {
         onClicked=null;
         coordinates=new int[]{45,145,245,345,445,545,645,745};//coordinat for window
 
         board=new Board();
-
+        artificialDecisions=new ArtificialIntelligence(board);
         //demo of performance
 
         long startTime = System.currentTimeMillis();
             List<Board> boards=new ArrayList<>();
-
+/*
         long loop=5000000;
         for (int i = 0; i < loop; i++) {
             Board b=board.clone();
@@ -47,7 +50,7 @@ public class GamePlay extends JPanel implements MouseListener{
         long endTime = System.currentTimeMillis();
         long timeElapsed = endTime - startTime;
         System.out.println("Execution time in milliseconds: " + timeElapsed);
-
+*/
         this.isAIon=isAIon;
 
 
@@ -67,8 +70,8 @@ public class GamePlay extends JPanel implements MouseListener{
 
         for (int i = 7; i >=0; i--) {//drawing all Pieces-> down to top
             for (int j = 0; j < 8; j++) {
-                if (board.stateOfBoard[i][j]!=null) {
-                    g.drawImage(board.stateOfBoard[i][j].getImg(), coordinates[j], coordinates[7-i], 100, 100, this);
+                if (board.getStateOfBoard()[i][j]!=null) {
+                    g.drawImage(board.getStateOfBoard()[i][j].getImg(), coordinates[j], coordinates[7-i], 100, 100, this);
                 }
             }
         }
@@ -81,7 +84,7 @@ public class GamePlay extends JPanel implements MouseListener{
                 g.drawImage(ImageOfPieces.imagesInstance.getOnClicked(), coordinates[x[0]], coordinates[7-x[1]], this);
             }
         }
-        System.out.println(counter++);
+        //System.out.println(counter++);
     }
 
 
@@ -123,15 +126,21 @@ public class GamePlay extends JPanel implements MouseListener{
 
                     onClicked.moveOrCapture(indexX, indexY);//play
                     //let ai think
-
+                    try {
+                        artificialDecisions=new ArtificialIntelligence(board);
+                        artificialDecisions.generateTree(1);
+                    } catch (CloneNotSupportedException | IOException cloneNotSupportedException) {
+                        cloneNotSupportedException.printStackTrace();
+                    }
                     if(isAIon){
 
-                        String randomMove=ArtificialIntelligence.pickAndMoveRandomPiece(board);
-
-                        if(randomMove==null){
+                        String chosenMove;
+                       // chosenMove =ArtificialIntelligence.pickAndMoveRandomPiece(board);
+                        chosenMove=artificialDecisions.getMove();
+                        if(chosenMove==null){
                             return ;
                         }
-                        board.moveFromNotation(randomMove);
+                        board.moveFromNotation(chosenMove,true);
 
 
 
@@ -142,8 +151,8 @@ public class GamePlay extends JPanel implements MouseListener{
 
 
 
-            } if (board.stateOfBoard[indexY][indexX]!=null&&board.turn*board.stateOfBoard[indexY][indexX].getTeam()==1) {//if clicked square has a piece//and if the clicked pieces turn
-                onClicked=board.stateOfBoard[indexY][indexX];
+            } if (board.getStateOfBoard()[indexY][indexX]!=null&&board.turn*board.getStateOfBoard()[indexY][indexX].getTeam()==1) {//if clicked square has a piece//and if the clicked pieces turn
+                onClicked=board.getStateOfBoard()[indexY][indexX];
 
             } else{
                 onClicked=null;

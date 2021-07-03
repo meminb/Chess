@@ -20,7 +20,7 @@ public class Chess extends JFrame {
 
         win.setSize(865,895);
 
-        GamePlay game=new GamePlay(false);
+        GamePlay game=new GamePlay(true);
         game.addMouseListener(game);
         win.add(game);
 
