@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 
 public class Chess extends JFrame {
 
@@ -14,13 +15,13 @@ public class Chess extends JFrame {
     }
 
 
-    public static void main(String[] args) throws CloneNotSupportedException {
+    public static void main(String[] args) throws CloneNotSupportedException, IOException {
 
         Chess win=new Chess("chess");
 
         win.setSize(865,895);
 
-        GamePlay game=new GamePlay(true);
+        GamePlay game=new GamePlay(true,3);
         game.addMouseListener(game);
         win.add(game);
 

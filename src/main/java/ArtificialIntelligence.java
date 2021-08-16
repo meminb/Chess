@@ -10,27 +10,43 @@ public class ArtificialIntelligence {
 
      Tree possibilities;
 
-    public ArtificialIntelligence(Board board) {
+     private int depth;
 
+    public ArtificialIntelligence(Board board,int depth) throws IOException, CloneNotSupportedException {
+        this.depth=depth;
         this.possibilities = new Tree(board);
-
+        generateTree();
 
     }
 
 
 
 
-    public  void generateTree(int depth) throws CloneNotSupportedException,IOException {
+    public  void generateTree() throws CloneNotSupportedException,IOException {
 
         rawCalculator(possibilities.getRoot(),depth);
 
     }
 
-    public  String getMove(){
-String bestMove=possibilities.getRoot().getMin();
-        System.out.println(" _"+bestMove);
-        return bestMove;
+    public Tree.Node getMove(){
+        //String bestMove=possibilities.getRoot().getMin();
 
+
+
+        //System.out.println(" _"+bestMove);
+        //return possibilities.miniMax(null,0,depth);
+         return possibilities.minimaxAlphaBeta(depth);
+        // return possibilities.getRoot().getMin();
+
+    }
+
+
+
+    public Tree.Node generateTreeAndGetMiniMax(Tree.Node parent,int depth){
+
+
+
+return null;
     }
 
 
@@ -44,50 +60,16 @@ String bestMove=possibilities.getRoot().getMin();
 
         List<String> allMoves=getAllPossibleMoves(board);
 
-        System.out.println(allMoves.toString());
+        //System.out.println(allMoves.toString());
 
         for (String move: allMoves) {
 
-            Board currentBoard= new Board();
+            Board currentBoard= (Board) board.clone();
             currentBoard.setStateOfBoard(board.getStateOfBoard());
+            //currentBoard.turn= currentBoard.turn*-1;
 
-           try{
                 currentBoard.moveFromNotation(move,false);
                 parent.setChild(currentBoard);
-
-
-
-
-            }catch (NullPointerException e){ System.out.println(move);
-
-               System.out.println(e);
-
-            Chess win=new Chess(move+" current");
-
-                win.setSize(865,895);
-
-                GamePlay game=new GamePlay(true);
-                game.board=currentBoard;
-                game.addMouseListener(game);
-                win.add(game);
-
-                win.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                win.setVisible(true);
-
-               Chess win2=new Chess(move);
-
-               win2.setSize(865,895);
-
-               GamePlay game2=new GamePlay(true);
-               game2.board=board;
-               game2.addMouseListener(game2);
-               win2.add(game2);
-
-               win2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-               win2.setVisible(true);
-              /*  /*/ break;
-            }
-
 
         }
         List<Tree.Node> children=parent.getChildren();
@@ -109,7 +91,7 @@ String bestMove=possibilities.getRoot().getMin();
 
     }
 
-
+public void setNewRoot(Tree.Node root){this.possibilities.setRoot(root);}
 
 
 

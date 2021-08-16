@@ -3,19 +3,20 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JPanel;
+import java.util.concurrent.TimeUnit;
+import javax.swing.*;
 
 /**
- *
  * @author muham
  */
-public class GamePlay extends JPanel implements MouseListener{
+public class GamePlay extends JPanel implements MouseListener {
 
     /**
      *
@@ -25,18 +26,19 @@ public class GamePlay extends JPanel implements MouseListener{
     int coordinates[];
     Board board;
     boolean isAIon;
-
+    private int depthOfAI;
     ArtificialIntelligence artificialDecisions;
-    public GamePlay(boolean isAIon) throws CloneNotSupportedException {
-        onClicked=null;
-        coordinates=new int[]{45,145,245,345,445,545,645,745};//coordinat for window
 
-        board=new Board();
-        artificialDecisions=new ArtificialIntelligence(board);
+    public GamePlay(boolean isAIon, int depthOfAI) throws CloneNotSupportedException, IOException {
+        onClicked = null;
+        coordinates = new int[]{45, 145, 245, 345, 445, 545, 645, 745};//coordinat for window
+        this.depthOfAI = depthOfAI;
+        board = new Board();
+        artificialDecisions = new ArtificialIntelligence(board, depthOfAI);
         //demo of performance
 
         long startTime = System.currentTimeMillis();
-            List<Board> boards=new ArrayList<>();
+        List<Board> boards = new ArrayList<>();
 /*
         long loop=5000000;
         for (int i = 0; i < loop; i++) {
@@ -51,48 +53,85 @@ public class GamePlay extends JPanel implements MouseListener{
         long timeElapsed = endTime - startTime;
         System.out.println("Execution time in milliseconds: " + timeElapsed);
 */
-        this.isAIon=isAIon;
-
+        this.isAIon = isAIon;
 
 
     }
-    static int counter =0;
+
+    static int counter = 0;
     static ArrayList<String> moves;
+
     @Override
     public void paint(Graphics g) {
         super.paint(g); //To change body of generated methods, choose Tools | Templates.
         g.drawImage(board.getBoard(), 0, 0, 845, 845, this);
 
-
+        //System.out.println(board.turn+"    ");
         if (board.isCheck) {
-            g.drawImage(ImageOfPieces.imagesInstance.getChecked(), coordinates[board.kings.get(board.turn).X], coordinates[7-board.kings.get(board.turn).Y], 100, 100, this);
+            g.drawImage(ImageOfPieces.imagesInstance.getChecked(), coordinates[board.kings.get(board.turn).X], coordinates[7 - board.kings.get(board.turn).Y], 100, 100, this);
         }
 
-        for (int i = 7; i >=0; i--) {//drawing all Pieces-> down to top
+        for (int i = 7; i >= 0; i--) {//drawing all Pieces-> down to top
             for (int j = 0; j < 8; j++) {
-                if (board.getStateOfBoard()[i][j]!=null) {
-                    g.drawImage(board.getStateOfBoard()[i][j].getImg(), coordinates[j], coordinates[7-i], 100, 100, this);
+                if (board.getStateOfBoard()[i][j] != null) {
+                    g.drawImage(board.getStateOfBoard()[i][j].getImg(), coordinates[j], coordinates[7 - i], 100, 100, this);
                 }
             }
         }
 
 
-        if (onClicked!=null) {// draws circles for available moves
-            List<String> availableMoves=onClicked.availableMoves();
+        if (onClicked != null) {// draws circles for available moves
+            List<String> availableMoves = onClicked.availableMoves();
             for (String notes : availableMoves) {
-                int x[]=board.getCoords(notes);
-                g.drawImage(ImageOfPieces.imagesInstance.getOnClicked(), coordinates[x[0]], coordinates[7-x[1]], this);
+                int x[] = board.getCoords(notes);
+                g.drawImage(ImageOfPieces.imagesInstance.getOnClicked(), coordinates[x[0]], coordinates[7 - x[1]], this);
             }
         }
         //System.out.println(counter++);
     }
 
+    public void makeAIMove() {
+        long start = System.currentTimeMillis();
+        if (isAIon) {
+            try {
+                artificialDecisions = new ArtificialIntelligence(board, depthOfAI);
 
+            } catch (CloneNotSupportedException | IOException cloneNotSupportedException) {
+                cloneNotSupportedException.printStackTrace();
+            }
+
+
+            String chosenMove;
+            // chosenMove =ArtificialIntelligence.pickAndMoveRandomPiece(board);
+            // Tree.Node preferredNode=artificialDecisions.getMove();
+            Tree.Node preferredNode = artificialDecisions.getMove();
+
+            chosenMove = preferredNode.getData().notationOfLastMove;
+
+            Board tempBoard = null;
+
+
+            preferredNode.setBoard(board);
+            artificialDecisions.setNewRoot(preferredNode);
+
+
+            if (chosenMove == null) {
+                return;
+            }
+
+            board.moveFromNotation(chosenMove, true);
+
+
+            repaint();
+        }
+        long end = System.currentTimeMillis();
+        long elapsedTime = end - start;
+        System.out.println("Moved in "+ elapsedTime+" ms");
+    }
 
 
     @Override
-    public void mouseClicked(MouseEvent e) throws ArrayIndexOutOfBoundsException{
-
+    public void mouseClicked(MouseEvent e) throws ArrayIndexOutOfBoundsException {
 
 
     }
@@ -112,60 +151,43 @@ public class GamePlay extends JPanel implements MouseListener{
     @Override
     public void mouseReleased(MouseEvent e) {
 
-        if (e.getX()<845&&e.getY()<845) {//if mouse in the map
-            int indexX=(e.getX()-45)/100;
-            int indexY=7-(e.getY()-45)/100;
+
+        if (e.getX() < 845 && e.getY() < 845) {//if mouse in the map
+            int indexX = (e.getX() - 45) / 100;
+            int indexY = 7 - (e.getY() - 45) / 100;
 
 
-            if (onClicked!=null) {//if there is a picked piece
+            if (onClicked != null) {//if there is a picked piece
 
-                moves=onClicked.availableMoves();
-                String s=board.getNotation(indexX, indexY);
+                moves = onClicked.availableMoves();
+                String s = board.getNotation(indexX, indexY);
 
                 if (moves.contains(s)) {//and clicked square in the picked pieces available moves
 
                     onClicked.moveOrCapture(indexX, indexY);//play
-                    //let ai think
-                    try {
-                        artificialDecisions=new ArtificialIntelligence(board);
-                        artificialDecisions.generateTree(1);
-                    } catch (CloneNotSupportedException | IOException cloneNotSupportedException) {
-                        cloneNotSupportedException.printStackTrace();
-                    }
-                    if(isAIon){
-
-                        String chosenMove;
-                       // chosenMove =ArtificialIntelligence.pickAndMoveRandomPiece(board);
-                        chosenMove=artificialDecisions.getMove();
-                        if(chosenMove==null){
-                            return ;
-                        }
-                        board.moveFromNotation(chosenMove,true);
-
-
-
-                    }
-
+                    repaint();
+                    makeAIMove();
                 }
-                onClicked=null;
+                onClicked = null;
 
 
+            }
+            if (board.getStateOfBoard()[indexY][indexX] != null &&
+                    board.turn * board.getStateOfBoard()[indexY][indexX].getTeam() == 1) {//if clicked square has a piece//and if the clicked pieces turn
+                onClicked = board.getStateOfBoard()[indexY][indexX];
 
-            } if (board.getStateOfBoard()[indexY][indexX]!=null&&board.turn*board.getStateOfBoard()[indexY][indexX].getTeam()==1) {//if clicked square has a piece//and if the clicked pieces turn
-                onClicked=board.getStateOfBoard()[indexY][indexX];
-
-            } else{
-                onClicked=null;
+            } else {
+                onClicked = null;
             }
 
         }
-
 
 
         repaint();
 
 
     }
+
 
     @Override
     public void mouseEntered(MouseEvent e) {
@@ -175,9 +197,6 @@ public class GamePlay extends JPanel implements MouseListener{
     public void mouseExited(MouseEvent e) {
 
     }
-
-
-
 
 
 }

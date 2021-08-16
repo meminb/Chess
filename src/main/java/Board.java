@@ -76,6 +76,10 @@ public class Board implements Cloneable {
         //stateOfBoard[0][0]=new Knight(1,0, 0);
 
     }
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 
     public int calculateValueOfBoard() {
         // TODO dolas puan topla
@@ -106,16 +110,18 @@ public class Board implements Cloneable {
 
                 if (piece instanceof Pawn) {
                     clonePiece = new Pawn(piece.team, piece.X, piece.Y);
+                    clonePiece.hasMoved=piece.hasMoved;
+
                 } else if (piece instanceof Rook) {
-                    clonePiece = new Rook(piece.team, piece.X, piece.Y);
+                    clonePiece = new Rook(piece.team, piece.X, piece.Y);clonePiece.hasMoved=piece.hasMoved;
                 } else if (piece instanceof Knight) {
-                    clonePiece = new Knight(piece.team, piece.X, piece.Y);
+                    clonePiece = new Knight(piece.team, piece.X, piece.Y);clonePiece.hasMoved=piece.hasMoved;
                 } else if (piece instanceof Bishop) {
-                    clonePiece = new Bishop(piece.team, piece.X, piece.Y);
+                    clonePiece = new Bishop(piece.team, piece.X, piece.Y);clonePiece.hasMoved=piece.hasMoved;
                 } else if (piece instanceof Queen) {
-                    clonePiece = new Queen(piece.team, piece.X, piece.Y);
+                    clonePiece = new Queen(piece.team, piece.X, piece.Y);clonePiece.hasMoved=piece.hasMoved;
                 } else if (piece instanceof KING) {
-                    clonePiece = new KING(piece.team, piece.X, piece.Y);
+                    clonePiece = new KING(piece.team, piece.X, piece.Y);clonePiece.hasMoved=piece.hasMoved;
                 } else {
                     clonePiece = null;
                 }
@@ -156,13 +162,19 @@ public class Board implements Cloneable {
 
     public boolean virtualCheck(int x, int y) {// can any opposite piece capture x,y?
         Pieces[] testPieces;// pieces that test for virtualization checks for the king moves
-        testPieces = new Pieces[]{new Pawn(1, 0, 0), new Knight(1, 0, 0), new Bishop(1, 0, 0), new Rook(1, 0, 0), new Queen(1, 0, 0)};//test object for testing check
+        testPieces = new Pieces[]{
+                new Pawn(1, 0, 0),
+                new Knight(1, 0, 0),
+                new Bishop(1, 0, 0),
+                new Rook(1, 0, 0),
+                new Queen(1, 0, 0)};//test object for testing check
 
         for (Pieces test : testPieces) {
             test.X = x;
             test.Y = y;
             test.team = turn;
             ArrayList<String> moves = test.checkMovesFor();
+           // System.out.println(test.getClass()+" "+x+y+moves);
             for (String move : moves) {
                 int[] i = getCoords(move);
                 if (stateOfBoard[i[1]][i[0]] != null) {
@@ -194,9 +206,9 @@ public class Board implements Cloneable {
         int[] targetSquare = getCoords(commands[1]);
 
         if (ifReal) {
-            System.out.println(command);
-            System.out.println(currentSquare[0] + " " + currentSquare[1]);
-            System.out.println(targetSquare[0] + " " + targetSquare[1]);
+            //System.out.println(command);
+          //  System.out.println(currentSquare[0] + " " + currentSquare[1]);
+           // System.out.println(targetSquare[0] + " " + targetSquare[1]);
         }
         stateOfBoard[currentSquare[1]][currentSquare[0]].moveOrCapture(targetSquare[0], targetSquare[1]);
 
@@ -289,22 +301,27 @@ public class Board implements Cloneable {
         }
 
         public boolean moveOrCapture(int targetX, int targetY) {//moving an object
-
-            if (stateOfBoard[targetY][targetX] == null || this.team * stateOfBoard[targetY][targetX].team == -1) {//if target possition is empty or there is an enemy piece
-                notationOfLastMove = getNotation(X, Y) + "-" + getNotation(targetX, targetY);
-                int tempx = X;
-                int tempy = Y;
-                setHasMoved(true);
-                stateOfBoard[targetY][targetX] = this;//new placement for moved object
-                stateOfBoard[tempy][tempx] = null;//delete the moved object
-                stateOfBoard[targetY][targetX].X = targetX;
-                stateOfBoard[targetY][targetX].Y = targetY;
-                lastMoved = this;
-                turn *= -1;//change turn
-                isCheck = check((turn));
-                calculateValueOfBoard();
-                return true;
+            
+            try{// TODO: 3.07.2021 remove here too
+                if (stateOfBoard[targetY][targetX] == null || this.team * stateOfBoard[targetY][targetX].team == -1) {//if target possition is empty or there is an enemy piece
+                    notationOfLastMove = getNotation(X, Y) + "-" + getNotation(targetX, targetY);
+                    int tempx = X;
+                    int tempy = Y;
+                    setHasMoved(true);
+                    stateOfBoard[targetY][targetX] = this;//new placement for moved object
+                    stateOfBoard[tempy][tempx] = null;//delete the moved object
+                    stateOfBoard[targetY][targetX].X = targetX;
+                    stateOfBoard[targetY][targetX].Y = targetY;
+                    lastMoved = this;
+                    turn *= -1;//change turn
+                    isCheck = check((turn));
+                    calculateValueOfBoard();
+                    return true;
+                }
+            }catch (Exception e){
+                System.out.println(targetX+"-"+targetY);
             }
+        
 
             return false;
 
@@ -361,7 +378,7 @@ public class Board implements Cloneable {
             for (int i = 1; i < 8; i++) {
 
                 if (Y + i < 8 && north) {//north
-
+                  //  System.out.println(Y+i+" "+X+" "+ i);
                     if (stateOfBoard[Y + i][X] == null || stateOfBoard[Y + i][X].getTeam() * this.getTeam() == -1) {//
                         moves.add(getNotation(X, Y + i));
                     }
@@ -629,11 +646,12 @@ public class Board implements Cloneable {
     class KING extends Pieces {
 
         int[][] m;
-
+        
         ArrayList<String> movesForCastling;
 
         public KING(int side, int x, int y) {
             super(side, x, y);
+            
             // setImg((side > 0) ? ImageOfPieces.imagesInstance.getKingWhite() : ImageOfPieces.imagesInstance.getKingBlack());
             //king's teams are not "1" and "-1",their teams are "99" and "-99" because they can not be captured
             m = new int[][]{{1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}, {1, 0}};//moves for king
@@ -679,13 +697,19 @@ public class Board implements Cloneable {
             }
 
             for (int i = 1; i < 4; i++) {
-                if (i < 3 && (shortCastling && stateOfBoard[Y][X + i] != null || (virtualCheck(X + i, Y)))) {
-                    shortCastling = false;
+                try{// TODO: 3.07.2021 remove try catch 
+                    if (i < 3 && (shortCastling && stateOfBoard[Y][X + i] != null || (virtualCheck(X + i, Y)))) {
+                        shortCastling = false;
 
+                    }
+                    if (longCastling && stateOfBoard[Y][X - i] != null || (i < 3 && virtualCheck(X - i, Y))) {
+                        longCastling = false;
+                    }
+                }catch (ArrayIndexOutOfBoundsException e){
+                    System.out.println(e +"  "+ isHasMoved() +i+" "+ X);
+                    
                 }
-                if (longCastling && stateOfBoard[Y][X - i] != null || (i < 3 && virtualCheck(X - i, Y))) {
-                    longCastling = false;
-                }
+               
             }
             try {
                 if (stateOfBoard[Y][X + 3].isHasMoved()) {
@@ -694,7 +718,7 @@ public class Board implements Cloneable {
                 if (stateOfBoard[Y][X - 4].isHasMoved()) {
                     shortCastling = false;
                 }
-            } catch (NullPointerException ignored) {
+            } catch (NullPointerException | ArrayIndexOutOfBoundsException ignored) {
             }
 
             if (shortCastling) {
