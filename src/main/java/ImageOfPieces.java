@@ -26,22 +26,22 @@ public class ImageOfPieces {
 public ImageOfPieces(){
 
     try {
-        board = ImageIO.read(new FileImageInputStream(new File("Board.jpg")));
-        BishopBlack = ImageIO.read(new FileImageInputStream(new File("BishopBlack.png")));
-        BishopWhite = ImageIO.read(new FileImageInputStream(new File("BishopWhite.png")));
-        KnightBlack = ImageIO.read(new FileImageInputStream(new File("KnightBlack.png")));
-        KnightWhite = ImageIO.read(new FileImageInputStream(new File("KnightWhite.png")));
-        RookBlack = ImageIO.read(new FileImageInputStream(new File("RookBlack.png")));
-        RookWhite = ImageIO.read(new FileImageInputStream(new File("RookWhite.png")));
-        KingBlack = ImageIO.read(new FileImageInputStream(new File("KingBlack.png")));
-        KingWhite = ImageIO.read(new FileImageInputStream(new File("KingWhite.png")));
-        QueenBlack = ImageIO.read(new FileImageInputStream(new File("QueenBlack.png")));
-        QueenWhite = ImageIO.read(new FileImageInputStream(new File("QueenWhite.png")));
-        PawnWhite = ImageIO.read(new FileImageInputStream(new File("PawnWhite.png")));
-        PawnBlack = ImageIO.read(new FileImageInputStream(new File("PawnBlack.png")));
-        OnClicked = ImageIO.read(new FileImageInputStream(new File("OnClicked.png")));
+        board = ImageIO.read(new FileImageInputStream(new File("Assets/Board.jpg")));
+        BishopBlack = ImageIO.read(new FileImageInputStream(new File("Assets/BishopBlack.png")));
+        BishopWhite = ImageIO.read(new FileImageInputStream(new File("Assets/BishopWhite.png")));
+        KnightBlack = ImageIO.read(new FileImageInputStream(new File("Assets/KnightBlack.png")));
+        KnightWhite = ImageIO.read(new FileImageInputStream(new File("Assets/KnightWhite.png")));
+        RookBlack = ImageIO.read(new FileImageInputStream(new File("Assets/RookBlack.png")));
+        RookWhite = ImageIO.read(new FileImageInputStream(new File("Assets/RookWhite.png")));
+        KingBlack = ImageIO.read(new FileImageInputStream(new File("Assets/KingBlack.png")));
+        KingWhite = ImageIO.read(new FileImageInputStream(new File("Assets/KingWhite.png")));
+        QueenBlack = ImageIO.read(new FileImageInputStream(new File("Assets/QueenBlack.png")));
+        QueenWhite = ImageIO.read(new FileImageInputStream(new File("Assets/QueenWhite.png")));
+        PawnWhite = ImageIO.read(new FileImageInputStream(new File("Assets/PawnWhite.png")));
+        PawnBlack = ImageIO.read(new FileImageInputStream(new File("Assets/PawnBlack.png")));
+        OnClicked = ImageIO.read(new FileImageInputStream(new File("Assets/OnClicked.png")));
         //Check=ImageIO.read(new FileImageInputStream(new File("check.png")));
-        Checked = ImageIO.read(new FileImageInputStream(new File("Check.png")));
+        Checked = ImageIO.read(new FileImageInputStream(new File("Assets/Check.png")));
     } catch (Exception e) {
         System.out.println("Couldn't find path");
     }
